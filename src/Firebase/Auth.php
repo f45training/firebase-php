@@ -101,7 +101,7 @@ class Auth
         return $this->idTokenVerifier->verify($idToken);
     }
 
-    private function convertResponseToUser(ResponseInterface $response): User
+    public function convertResponseToUser(ResponseInterface $response): User
     {
         $data = JSON::decode((string) $response->getBody(), true);
 
