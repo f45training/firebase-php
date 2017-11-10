@@ -14,10 +14,10 @@
         "php": ">=5.6",
         "ext-mbstring": "*",
         "ext-openssl": "*",
+        "f45training/firebase-tokens": "^1.6",
         "fig/http-message-util": "^1.1",
         "google/auth": "^0.11.0|^1.0",
         "guzzlehttp/guzzle": "^6.2.1",
-        "kreait/firebase-tokens": "^1.1.1",
         "lcobucci/jwt": "^3.2",
         "mtdowling/jmespath.php": "^2.3"
     },
@@ -45,5 +45,11 @@
         "branch-alias": {
             "dev-master": "3.x-dev"
         }
-    }
+    },
+    "repositories": [
+        {
+            "url": "https://github.com/f45training/firebase-tokens-php.git",
+            "type": "git"
+        }
+    ]
 }
