@@ -7,31 +7,26 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token;
-
 class CustomTokenGenerator
 {
     /**
      * @var Builder
      */
     private $builder;
-
     /**
      * @var Signer
      */
     private $signer;
-
     /**
      * @var ServiceAccount
      */
     private $serviceAccount;
-
     public function __construct(ServiceAccount $serviceAccount, Builder $builder = null, Signer $signer = null)
     {
         $this->serviceAccount = $serviceAccount;
-        $this->signer = $signer ?? new Sha256();
-        $this->builder = $builder ?? $this->createBuilder();
+        $this->signer = isset($signer) ? $signer : new Sha256();
+        $this->builder = isset($builder) ? $builder : $this->createBuilder();
     }
-
     /**
      * Returns a token for the given user and claims.
      *
@@ -43,29 +38,18 @@ class CustomTokenGenerator
      *
      * @return Token
      */
-    public function create($uid, array $claims = [], \DateTimeInterface $expiresAt = null): Token
+    public function create($uid, array $claims = [], \DateTimeInterface $expiresAt = null)
     {
         if (count($claims)) {
             $this->builder->set('claims', $claims);
         }
-
         $this->builder->set('uid', (string) $uid);
-
         $now = time();
-        $expiration = $expiresAt ? $expiresAt->getTimestamp() : $now + (60 * 60);
-
-        return $this->builder
-            ->setIssuedAt($now)
-            ->setExpiration($expiration)
-            ->sign($this->signer, $this->serviceAccount->getPrivateKey())
-            ->getToken();
+        $expiration = $expiresAt ? $expiresAt->getTimestamp() : $now + 60 * 60;
+        return $this->builder->setIssuedAt($now)->setExpiration($expiration)->sign($this->signer, $this->serviceAccount->getPrivateKey())->getToken();
     }
-
-    private function createBuilder(): Builder
+    private function createBuilder()
     {
-        return (new Builder())
-                ->setIssuer($this->serviceAccount->getClientEmail())
-                ->setSubject($this->serviceAccount->getClientEmail())
-                ->setAudience('https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit');
+        return (new Builder())->setIssuer($this->serviceAccount->getClientEmail())->setSubject($this->serviceAccount->getClientEmail())->setAudience('https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit');
     }
 }

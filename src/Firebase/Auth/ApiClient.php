@@ -13,19 +13,16 @@ use Kreait\Firebase\Exception\Auth\UserDisabled;
 use Kreait\Firebase\Exception\AuthException;
 use Lcobucci\JWT\Token;
 use Psr\Http\Message\ResponseInterface;
-
 class ApiClient
 {
     /**
      * @var ClientInterface
      */
     private $client;
-
     public function __construct(ClientInterface $client)
     {
         $this->client = $client;
     }
-
     /**
      * Takes a custom token and exchanges it with an ID token.
      *
@@ -38,14 +35,10 @@ class ApiClient
      *
      * @return ResponseInterface
      */
-    public function exchangeCustomTokenForIdAndRefreshToken(Token $token): ResponseInterface
+    public function exchangeCustomTokenForIdAndRefreshToken(Token $token)
     {
-        return $this->request('verifyCustomToken', [
-            'token' => (string) $token,
-            'returnSecureToken' => true,
-        ]);
+        return $this->request('verifyCustomToken', ['token' => (string) $token, 'returnSecureToken' => true]);
     }
-
     /**
      * Creates a new user with the given email address and password.
      *
@@ -56,15 +49,10 @@ class ApiClient
      *
      * @return ResponseInterface
      */
-    public function signupNewUser(string $email = null, string $password = null): ResponseInterface
+    public function signupNewUser($email = null, $password = null)
     {
-        return $this->request('signupNewUser', array_filter([
-            'email' => $email,
-            'password' => $password,
-            'returnSecureToken' => true,
-        ]));
+        return $this->request('signupNewUser', array_filter(['email' => $email, 'password' => $password, 'returnSecureToken' => true]));
     }
-
     /**
      * Returns a user for the given email address and password.
      *
@@ -79,49 +67,27 @@ class ApiClient
      *
      * @return ResponseInterface
      */
-    public function getUserByEmailAndPassword(string $email, string $password): ResponseInterface
+    public function getUserByEmailAndPassword($email, $password)
     {
-        return $this->request('verifyPassword', array_filter([
-            'email' => $email,
-            'password' => $password,
-            'returnSecureToken' => true,
-        ]));
+        return $this->request('verifyPassword', array_filter(['email' => $email, 'password' => $password, 'returnSecureToken' => true]));
     }
-
-    public function deleteUser(User $user): ResponseInterface
+    public function deleteUser(User $user)
     {
-        return $this->request('deleteAccount', [
-            'idToken' => (string) $user->getIdToken(),
-        ]);
+        return $this->request('deleteAccount', ['idToken' => (string) $user->getIdToken()]);
     }
-
-    public function changeUserPassword(User $user, string $newPassword): ResponseInterface
+    public function changeUserPassword(User $user, $newPassword)
     {
-        return $this->request('setAccountInfo', [
-            'idToken' => (string) $user->getIdToken(),
-            'password' => $newPassword,
-            'returnSecureToken' => true,
-        ]);
+        return $this->request('setAccountInfo', ['idToken' => (string) $user->getIdToken(), 'password' => $newPassword, 'returnSecureToken' => true]);
     }
-
-    public function changeUserEmail(User $user, string $newEmail): ResponseInterface
+    public function changeUserEmail(User $user, $newEmail)
     {
-        return $this->request('setAccountInfo', [
-            'idToken' => (string) $user->getIdToken(),
-            'email' => $newEmail,
-            'returnSecureToken' => true,
-        ]);
+        return $this->request('setAccountInfo', ['idToken' => (string) $user->getIdToken(), 'email' => $newEmail, 'returnSecureToken' => true]);
     }
-
-    public function sendEmailVerification(User $user): ResponseInterface
+    public function sendEmailVerification(User $user)
     {
-        return $this->request('getOobConfirmationCode', [
-            'requestType' => 'VERIFY_EMAIL',
-            'idToken' => (string) $user->getIdToken(),
-        ]);
+        return $this->request('getOobConfirmationCode', ['requestType' => 'VERIFY_EMAIL', 'idToken' => (string) $user->getIdToken()]);
     }
-
-    public function request(string $uri, array $data): ResponseInterface
+    public function request($uri, array $data)
     {
         try {
             return $this->client->request(RequestMethod::METHOD_POST, $uri, ['json' => $data]);

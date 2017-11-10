@@ -3,7 +3,6 @@
 namespace Kreait\Firebase\Database\Query;
 
 use Psr\Http\Message\UriInterface;
-
 interface Modifier
 {
     /**
@@ -13,8 +12,7 @@ interface Modifier
      *
      * @return UriInterface
      */
-    public function modifyUri(UriInterface $uri): UriInterface;
-
+    public function modifyUri(UriInterface $uri);
     /**
      * Modifies the given value and returns it.
      *

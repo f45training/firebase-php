@@ -9,7 +9,6 @@ use Kreait\Firebase\Exception\InvalidArgumentException;
 use Kreait\Firebase\Exception\OutOfRangeException;
 use Kreait\Firebase\Http\Auth;
 use Psr\Http\Message\UriInterface;
-
 /**
  * The Firebase Realtime Database.
  *
@@ -18,17 +17,14 @@ use Psr\Http\Message\UriInterface;
 class Database
 {
     const SERVER_TIMESTAMP = ['.sv' => 'timestamp'];
-
     /**
      * @var ApiClient
      */
     private $client;
-
     /**
      * @var UriInterface
      */
     private $uri;
-
     /**
      * Creates a new database instance for the given database URI
      * which is accessed by the given API client.
@@ -41,7 +37,6 @@ class Database
         $this->uri = $uri;
         $this->client = $client;
     }
-
     /**
      * Returns a new Database instance with the given authentication override.
      *
@@ -49,11 +44,10 @@ class Database
      *
      * @return Database
      */
-    public function withCustomAuth(Auth $auth): Database
+    public function withCustomAuth(Auth $auth)
     {
         return new self($this->uri, $this->client->withCustomAuth($auth));
     }
-
     /**
      * Returns a Reference to the root or the specified path.
      *
@@ -65,7 +59,7 @@ class Database
      *
      * @return Reference
      */
-    public function getReference(string $path = ''): Reference
+    public function getReference($path = '')
     {
         try {
             return new Reference($this->uri->withPath($path), $this->client);
@@ -73,7 +67,6 @@ class Database
             throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
         }
     }
-
     /**
      * Returns a reference to the root or the path specified in url.
      *
@@ -86,7 +79,7 @@ class Database
      *
      * @return Reference
      */
-    public function getReferenceFromUrl($uri): Reference
+    public function getReferenceFromUrl($uri)
     {
         try {
             $uri = Psr7\uri_for($uri);
@@ -94,14 +87,9 @@ class Database
             // Wrap exception so that everything stays inside the Firebase namespace
             throw new InvalidArgumentException($e->getMessage(), $e->getCode());
         }
-
         if (($givenHost = $uri->getHost()) !== ($dbHost = $this->uri->getHost())) {
-            throw new InvalidArgumentException(sprintf(
-                'The given URI\'s host "%s" is not covered by the database for the host "%s".',
-                $givenHost, $dbHost
-            ));
+            throw new InvalidArgumentException(sprintf('The given URI\'s host "%s" is not covered by the database for the host "%s".', $givenHost, $dbHost));
         }
-
         return $this->getReference($uri->getPath());
     }
 }

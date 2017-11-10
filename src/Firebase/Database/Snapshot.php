@@ -4,7 +4,6 @@ namespace Kreait\Firebase\Database;
 
 use JmesPath;
 use Kreait\Firebase\Exception\InvalidArgumentException;
-
 /**
  * A Snapshot contains data from a database location.
  *
@@ -25,18 +24,15 @@ class Snapshot
      * @var Reference
      */
     private $reference;
-
     /**
      * @var mixed
      */
     private $value;
-
     public function __construct(Reference $reference, $value)
     {
         $this->reference = $reference;
         $this->value = $value;
     }
-
     /**
      * Returns the key (last part of the path) of the location of this Snapshot.
      *
@@ -53,7 +49,6 @@ class Snapshot
     {
         return $this->reference->getKey();
     }
-
     /**
      * Returns the Reference for the location that generated this Snapshot.
      *
@@ -61,11 +56,10 @@ class Snapshot
      *
      * @return Reference
      */
-    public function getReference(): Reference
+    public function getReference()
     {
         return $this->reference;
     }
-
     /**
      * Returns another Snapshot for the location at the specified relative path.
      *
@@ -82,16 +76,13 @@ class Snapshot
      *
      * @return Snapshot
      */
-    public function getChild(string $path): Snapshot
+    public function getChild($path)
     {
         $path = trim($path, '/');
         $expression = str_replace('/', '.', $path);
-
         $childValue = JmesPath\search($expression, $this->value);
-
         return new self($this->reference->getChild($path), $childValue);
     }
-
     /**
      * Returns true if this Snapshot contains any data.
      *
@@ -101,11 +92,10 @@ class Snapshot
      *
      * @return bool
      */
-    public function exists(): bool
+    public function exists()
     {
         return null !== $this->value;
     }
-
     /**
      * Returns true if the specified child path has (non-null) data.
      *
@@ -115,14 +105,12 @@ class Snapshot
      *
      * @return bool
      */
-    public function hasChild(string $path): bool
+    public function hasChild($path)
     {
         $path = trim($path, '/');
         $expression = str_replace('/', '.', $path);
-
         return null !== JmesPath\search($expression, $this->value);
     }
-
     /**
      * Returns true if the Snapshot has any child properties.
      *
@@ -135,11 +123,10 @@ class Snapshot
      *
      * @return bool
      */
-    public function hasChildren(): bool
+    public function hasChildren()
     {
         return is_array($this->value) && count($this->value);
     }
-
     /**
      * Returns the number of child properties of this Snapshot.
      *
@@ -147,11 +134,10 @@ class Snapshot
      *
      * @return int
      */
-    public function numChildren(): int
+    public function numChildren()
     {
         return is_array($this->value) ? count($this->value) : 0;
     }
-
     /**
      * Returns the data contained in this Snapshot.
      *

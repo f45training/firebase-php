@@ -7,7 +7,6 @@ use Kreait\Firebase\Database\Query\Sorter;
 use Kreait\Firebase\Exception\ApiException;
 use Kreait\Firebase\Exception\QueryException;
 use Psr\Http\Message\UriInterface;
-
 /**
  * A Query sorts and filters the data at a database location so only a subset of the child data is included.
  * This can be used to order a collection of data by some attribute (e.g. height of dinosaurs) as well as
@@ -27,22 +26,18 @@ class Query
      * @var Reference
      */
     private $reference;
-
     /**
      * @var ApiClient
      */
     private $apiClient;
-
     /**
      * @var Filter[]
      */
     private $filters;
-
     /**
      * @var Sorter
      */
     private $sorter;
-
     /**
      * Creates a new Query for the given Reference which is
      * executed by the given API client.
@@ -56,7 +51,6 @@ class Query
         $this->apiClient = $apiClient;
         $this->filters = [];
     }
-
     /**
      * Returns a Reference to the Query's location.
      *
@@ -64,11 +58,10 @@ class Query
      *
      * @return Reference
      */
-    public function getReference(): Reference
+    public function getReference()
     {
         return $this->reference;
     }
-
     /**
      * Returns a data snapshot of the current location.
      *
@@ -76,25 +69,21 @@ class Query
      *
      * @return Snapshot
      */
-    public function getSnapshot(): Snapshot
+    public function getSnapshot()
     {
         try {
             $value = $this->apiClient->get($this->getUri());
         } catch (ApiException $e) {
             throw QueryException::fromApiException($e, $this);
         }
-
         if ($this->sorter) {
             $value = $this->sorter->modifyValue($value);
         }
-
         foreach ($this->filters as $filter) {
             $value = $filter->modifyValue($value);
         }
-
         return new Snapshot($this->reference, $value);
     }
-
     /**
      * Convenience method for {@see getSnapshot()}->getValue().
      *
@@ -106,7 +95,6 @@ class Query
     {
         return $this->getSnapshot()->getValue();
     }
-
     /**
      * Creates a Query with the specified ending point.
      *
@@ -119,11 +107,10 @@ class Query
      *
      * @return Query
      */
-    public function endAt($value): Query
+    public function endAt($value)
     {
         return $this->withAddedFilter(new Filter\EndAt($value));
     }
-
     /**
      * Creates a Query which includes children which match the specified value.
      *
@@ -133,11 +120,10 @@ class Query
      *
      * @return Query
      */
-    public function equalTo($value): Query
+    public function equalTo($value)
     {
         return $this->withAddedFilter(new Filter\EqualTo($value));
     }
-
     /**
      * Creates a Query with the specified starting point.
      *
@@ -149,11 +135,10 @@ class Query
      *
      * @return Query
      */
-    public function startAt($value): Query
+    public function startAt($value)
     {
         return $this->withAddedFilter(new Filter\StartAt($value));
     }
-
     /**
      * Generates a new Query limited to the first specific number of children.
      *
@@ -163,11 +148,10 @@ class Query
      *
      * @return Query
      */
-    public function limitToFirst(int $limit): Query
+    public function limitToFirst($limit)
     {
         return $this->withAddedFilter(new Filter\LimitToFirst($limit));
     }
-
     /**
      * Generates a new Query object limited to the last specific number of children.
      *
@@ -177,11 +161,10 @@ class Query
      *
      * @return Query
      */
-    public function limitToLast(int $limit): Query
+    public function limitToLast($limit)
     {
         return $this->withAddedFilter(new Filter\LimitToLast($limit));
     }
-
     /**
      * Generates a new Query object ordered by the specified child key.
      *
@@ -196,11 +179,10 @@ class Query
      *
      * @return Query
      */
-    public function orderByChild(string $childKey): Query
+    public function orderByChild($childKey)
     {
         return $this->withSorter(new Sorter\OrderByChild($childKey));
     }
-
     /**
      * Generates a new Query object ordered by key.
      *
@@ -215,11 +197,10 @@ class Query
      *
      * @return Query
      */
-    public function orderByKey(): Query
+    public function orderByKey()
     {
         return $this->withSorter(new Sorter\OrderByKey());
     }
-
     /**
      * Generates a new Query object ordered by child values.
      *
@@ -235,11 +216,10 @@ class Query
      *
      * @return Query
      */
-    public function orderByValue(): Query
+    public function orderByValue()
     {
         return $this->withSorter(new Sorter\OrderByValue());
     }
-
     /**
      * This is an advanced feature, designed to help you work with large datasets without needing to download
      * everything. Set this to true to limit the depth of the data returned at a location. If the data at
@@ -252,11 +232,10 @@ class Query
      *
      * @return Query
      */
-    public function shallow(): Query
+    public function shallow()
     {
         return $this->withAddedFilter(new Filter\Shallow());
     }
-
     /**
      * Returns the absolute URL for this location.
      *
@@ -269,21 +248,17 @@ class Query
      *
      * @return UriInterface
      */
-    public function getUri(): UriInterface
+    public function getUri()
     {
         $uri = $this->reference->getUri();
-
         if ($this->sorter) {
             $uri = $this->sorter->modifyUri($uri);
         }
-
         foreach ($this->filters as $filter) {
             $uri = $filter->modifyUri($uri);
         }
-
         return $uri;
     }
-
     /**
      * Returns the absolute URL for this location.
      *
@@ -295,24 +270,19 @@ class Query
     {
         return (string) $this->getUri();
     }
-
-    private function withAddedFilter(Filter $filter): self
+    private function withAddedFilter(Filter $filter)
     {
         $query = clone $this;
         $query->filters[] = $filter;
-
         return $query;
     }
-
-    private function withSorter(Sorter $sorter): self
+    private function withSorter(Sorter $sorter)
     {
         if ($this->sorter) {
             throw new QueryException($this, 'This query is already ordered.');
         }
-
         $query = clone $this;
         $query->sorter = $sorter;
-
         return $query;
     }
 }

@@ -7,7 +7,6 @@ use Kreait\Firebase\Exception\ApiException;
 use Kreait\Firebase\Exception\InvalidArgumentException;
 use Kreait\Firebase\Exception\OutOfRangeException;
 use Psr\Http\Message\UriInterface;
-
 /**
  * A Reference represents a specific location in your database and can be used
  * for reading or writing data to that database location.
@@ -20,17 +19,14 @@ class Reference
      * @var UriInterface
      */
     private $uri;
-
     /**
      * @var ApiClient
      */
     private $apiClient;
-
     /**
      * @var Validator
      */
     private $validator;
-
     /**
      * Creates a new Reference instance for the given URI which is accessed by
      * the given API client and validated by the Validator (obviously).
@@ -43,13 +39,11 @@ class Reference
      */
     public function __construct(UriInterface $uri, ApiClient $apiClient, Validator $validator = null)
     {
-        $this->validator = $validator ?? new Validator();
+        $this->validator = isset($validator) ? $validator : new Validator();
         $this->validator->validateUri($uri);
-
         $this->uri = $uri;
         $this->apiClient = $apiClient;
     }
-
     /**
      * The last part of the current path.
      *
@@ -64,20 +58,17 @@ class Reference
     public function getKey()
     {
         $key = basename($this->getPath());
-
         return '' !== $key ? $key : null;
     }
-
     /**
      * Returns the full path to a reference.
      *
      * @return string
      */
-    public function getPath(): string
+    public function getPath()
     {
         return trim($this->uri->getPath(), '/');
     }
-
     /**
      * The parent location of a Reference.
      *
@@ -87,18 +78,15 @@ class Reference
      *
      * @return Reference
      */
-    public function getParent(): Reference
+    public function getParent()
     {
         $parentPath = dirname($this->getPath());
-
         if ('.' === $parentPath) {
             throw new OutOfRangeException('Cannot get parent of root reference');
         }
-
         /* @noinspection ExceptionsAnnotatingAndHandlingInspection */
         return new self($this->uri->withPath($parentPath), $this->apiClient, $this->validator);
     }
-
     /**
      * The root location of a Reference.
      *
@@ -106,12 +94,11 @@ class Reference
      *
      * @return Reference
      */
-    public function getRoot(): Reference
+    public function getRoot()
     {
         /* @noinspection ExceptionsAnnotatingAndHandlingInspection */
         return new self($this->uri->withPath('/'), $this->apiClient, $this->validator);
     }
-
     /**
      * Gets a Reference for the location at the specified relative path.
      *
@@ -126,17 +113,15 @@ class Reference
      *
      * @return Reference
      */
-    public function getChild(string $path): Reference
+    public function getChild($path)
     {
         $childPath = sprintf('%s/%s', trim($this->uri->getPath(), '/'), trim($path, '/'));
-
         try {
             return new self($this->uri->withPath($childPath), $this->apiClient, $this->validator);
         } catch (\InvalidArgumentException $e) {
             throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
         }
     }
-
     /**
      * Generates a new Query object ordered by the specified child key.
      *
@@ -146,12 +131,11 @@ class Reference
      *
      * @return Query
      */
-    public function orderByChild(string $path): Query
+    public function orderByChild($path)
     {
         /* @noinspection ExceptionsAnnotatingAndHandlingInspection */
         return $this->query()->orderByChild($path);
     }
-
     /**
      * Generates a new Query object ordered by key.
      *
@@ -159,12 +143,11 @@ class Reference
      *
      * @return Query
      */
-    public function orderByKey(): Query
+    public function orderByKey()
     {
         /* @noinspection ExceptionsAnnotatingAndHandlingInspection */
         return $this->query()->orderByKey();
     }
-
     /**
      * Generates a new Query object ordered by child values.
      *
@@ -172,12 +155,11 @@ class Reference
      *
      * @return Query
      */
-    public function orderByValue(): Query
+    public function orderByValue()
     {
         /* @noinspection ExceptionsAnnotatingAndHandlingInspection */
         return $this->query()->orderByValue();
     }
-
     /**
      * Generates a new Query limited to the first specific number of children.
      *
@@ -187,11 +169,10 @@ class Reference
      *
      * @return Query
      */
-    public function limitToFirst(int $limit): Query
+    public function limitToFirst($limit)
     {
         return $this->query()->limitToFirst($limit);
     }
-
     /**
      * Generates a new Query object limited to the last specific number of children.
      *
@@ -201,11 +182,10 @@ class Reference
      *
      * @return Query
      */
-    public function limitToLast(int $limit): Query
+    public function limitToLast($limit)
     {
         return $this->query()->limitToLast($limit);
     }
-
     /**
      * Creates a Query with the specified starting point.
      *
@@ -215,11 +195,10 @@ class Reference
      *
      * @return Query
      */
-    public function startAt($value): Query
+    public function startAt($value)
     {
         return $this->query()->startAt($value);
     }
-
     /**
      * Creates a Query with the specified ending point.
      *
@@ -229,11 +208,10 @@ class Reference
      *
      * @return Query
      */
-    public function endAt($value): Query
+    public function endAt($value)
     {
         return $this->query()->endAt($value);
     }
-
     /**
      * Creates a Query which includes children which match the specified value.
      *
@@ -243,11 +221,10 @@ class Reference
      *
      * @return Query
      */
-    public function equalTo($value): Query
+    public function equalTo($value)
     {
         return $this->query()->equalTo($value);
     }
-
     /**
      * Creates a Query with shallow results.
      *
@@ -255,11 +232,10 @@ class Reference
      *
      * @return Query
      */
-    public function shallow(): Query
+    public function shallow()
     {
         return $this->query()->shallow();
     }
-
     /**
      * Returns the keys of a reference's children.
      *
@@ -268,18 +244,15 @@ class Reference
      *
      * @return string[]
      */
-    public function getChildKeys(): array
+    public function getChildKeys()
     {
         /** @noinspection ExceptionsAnnotatingAndHandlingInspection */
         $snapshot = $this->shallow()->getSnapshot();
-
         if (is_array($value = $snapshot->getValue())) {
             return array_keys($value);
         }
-
         throw new OutOfRangeException(sprintf('%s has no children with keys', $this));
     }
-
     /**
      * Convenience method for {@see getSnapshot()}->getValue().
      *
@@ -291,7 +264,6 @@ class Reference
     {
         return $this->getSnapshot()->getValue();
     }
-
     /**
      * Write data to this database location.
      *
@@ -306,13 +278,11 @@ class Reference
      *
      * @return Reference
      */
-    public function set($value): Reference
+    public function set($value)
     {
         $this->apiClient->set($this->uri, $value);
-
         return $this;
     }
-
     /**
      * Returns a data snapshot of the current location.
      *
@@ -320,13 +290,11 @@ class Reference
      *
      * @return Snapshot
      */
-    public function getSnapshot(): Snapshot
+    public function getSnapshot()
     {
         $value = $this->apiClient->get($this->uri);
-
         return new Snapshot($this, $value);
     }
-
     /**
      * Generates a new child location using a unique key and returns its reference.
      *
@@ -348,15 +316,13 @@ class Reference
      *
      * @return Reference A new reference for the added child
      */
-    public function push($value = null): Reference
+    public function push($value = null)
     {
         $newKey = $this->apiClient->push($this->uri, $value);
         $newPath = sprintf('%s/%s', $this->uri->getPath(), $newKey);
-
         /* @noinspection ExceptionsAnnotatingAndHandlingInspection */
         return new self($this->uri->withPath($newPath), $this->apiClient, $this->validator);
     }
-
     /**
      * Remove the data at this database location.
      *
@@ -368,13 +334,11 @@ class Reference
      *
      * @return Reference A new instance for the now empty Reference
      */
-    public function remove(): Reference
+    public function remove()
     {
         $this->apiClient->remove($this->uri);
-
         return $this;
     }
-
     /**
      * Writes multiple values to the database at once.
      *
@@ -395,13 +359,11 @@ class Reference
      *
      * @return Reference
      */
-    public function update(array $values): Reference
+    public function update(array $values)
     {
         $this->apiClient->update($this->uri, $values);
-
         return $this;
     }
-
     /**
      * Returns the absolute URL for this location.
      *
@@ -417,11 +379,10 @@ class Reference
      *
      * @return UriInterface
      */
-    public function getUri(): UriInterface
+    public function getUri()
     {
         return $this->uri;
     }
-
     /**
      * Returns the absolute URL for this location.
      *
@@ -433,13 +394,12 @@ class Reference
     {
         return (string) $this->getUri();
     }
-
     /**
      * Returns a new query for the current reference.
      *
      * @return Query
      */
-    private function query(): Query
+    private function query()
     {
         return new Query($this, $this->apiClient);
     }

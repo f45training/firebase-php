@@ -9,102 +9,78 @@ use Kreait\Firebase\Auth\User;
 use Kreait\Firebase\Util\JSON;
 use Lcobucci\JWT\Token;
 use Psr\Http\Message\ResponseInterface;
-
 class Auth
 {
     /**
      * @var ApiClient
      */
     private $client;
-
     /**
      * @var CustomTokenGenerator
      */
     private $customToken;
-
     /**
      * @var IdTokenVerifier
      */
     private $idTokenVerifier;
-
     public function __construct(ApiClient $client, CustomTokenGenerator $customToken, IdTokenVerifier $idTokenVerifier)
     {
         $this->client = $client;
         $this->customToken = $customToken;
         $this->idTokenVerifier = $idTokenVerifier;
     }
-
-    public function getApiClient(): ApiClient
+    public function getApiClient()
     {
         return $this->client;
     }
-
-    public function getUser($uid, array $claims = []): User
+    public function getUser($uid, array $claims = [])
     {
-        $response = $this->client->exchangeCustomTokenForIdAndRefreshToken(
-            $this->createCustomToken($uid, $claims)
-        );
-
+        $response = $this->client->exchangeCustomTokenForIdAndRefreshToken($this->createCustomToken($uid, $claims));
         return $this->convertResponseToUser($response);
     }
-
-    public function createUserWithEmailAndPassword(string $email, string $password): User
+    public function createUserWithEmailAndPassword($email, $password)
     {
         $response = $this->client->signupNewUser($email, $password);
-
         return $this->convertResponseToUser($response);
     }
-
-    public function getUserByEmailAndPassword(string $email, string $password): User
+    public function getUserByEmailAndPassword($email, $password)
     {
         $response = $this->client->getUserByEmailAndPassword($email, $password);
-
         return $this->convertResponseToUser($response);
     }
-
-    public function createAnonymousUser(): User
+    public function createAnonymousUser()
     {
         return $this->createUserWithEmailAndPassword('', '');
     }
-
-    public function changeUserPassword(User $user, string $newPassword): User
+    public function changeUserPassword(User $user, $newPassword)
     {
         $response = $this->client->changeUserPassword($user, $newPassword);
-
         return $this->convertResponseToUser($response);
     }
-
-    public function changeUserEmail(User $user, string $newEmail): User
+    public function changeUserEmail(User $user, $newEmail)
     {
         $response = $this->client->changeUserEmail($user, $newEmail);
-
         return $this->convertResponseToUser($response);
     }
-
-    public function deleteUser(User $user): void
+    public function deleteUser(User $user)
     {
         $this->client->deleteUser($user);
     }
-
-    public function sendEmailVerification(User $user): void
+    public function sendEmailVerification(User $user)
     {
         $this->client->sendEmailVerification($user);
     }
-
-    public function createCustomToken($uid, array $claims = [], \DateTimeInterface $expiresAt = null): Token
+    public function createCustomToken($uid, array $claims = [], \DateTimeInterface $expiresAt = null)
     {
         return $this->customToken->create($uid, $claims, $expiresAt);
     }
-
-    public function verifyIdToken($idToken): Token
+    public function verifyIdToken($idToken)
     {
         return $this->idTokenVerifier->verify($idToken);
     }
-
-    public function convertResponseToUser(ResponseInterface $response): User
+    public function convertResponseToUser(ResponseInterface $response)
     {
         $data = JSON::decode((string) $response->getBody(), true);
-
         return User::create($data['idToken'], $data['refreshToken']);
     }
 }

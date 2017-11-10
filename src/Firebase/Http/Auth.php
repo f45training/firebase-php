@@ -3,7 +3,6 @@
 namespace Kreait\Firebase\Http;
 
 use Psr\Http\Message\RequestInterface;
-
 /**
  * @see https://firebase.google.com/docs/auth/server/
  */
@@ -16,5 +15,5 @@ interface Auth
      *
      * @return RequestInterface
      */
-    public function authenticateRequest(RequestInterface $request): RequestInterface;
+    public function authenticateRequest(RequestInterface $request);
 }
